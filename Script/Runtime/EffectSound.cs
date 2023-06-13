@@ -26,13 +26,13 @@ namespace qbot.Sound
             }
         }
 
-        private Dictionary<string, AudioClip> effectSoundAudioClipDictionary;
-        private Dictionary<string, AudioClip> EffectSoundAudioClipDictionary
+        private Dictionary<string, AudioClip> effectSoundAudioClips;
+        private Dictionary<string, AudioClip> EffectSoundAudioClips
         {
             get
             {
-                this.effectSoundAudioClipDictionary ??= new Dictionary<string, AudioClip>();
-                return this.effectSoundAudioClipDictionary;
+                this.effectSoundAudioClips ??= new Dictionary<string, AudioClip>();
+                return this.effectSoundAudioClips;
             }
         }
 
@@ -55,7 +55,7 @@ namespace qbot.Sound
         #endregion
 
         #region Monobehaviour functions
-        private void Start()
+        private void Awake()
         {
             this.IsEffectSoundEnabled = PlayerPrefs.GetInt(IS_EFFECT_SOUND_ON, 1) == 1;
             this.effectSoundVolume = PlayerPrefs.GetFloat(EFFECT_SOUND_VOLUME, 1.0f);
@@ -77,7 +77,7 @@ namespace qbot.Sound
             }
 
             var effectSoundResourcePath = GetEffectSoundResourceDirectoryPath(effectSoundResourceName);
-            if (this.effectSoundAudioClipDictionary.ContainsKey(effectSoundResourcePath) == false)
+            if (this.EffectSoundAudioClips.ContainsKey(effectSoundResourcePath) == false)
             {
                 var audioClip = Resources.Load<AudioClip>(effectSoundResourcePath);
                 if (audioClip == null)
@@ -86,14 +86,14 @@ namespace qbot.Sound
                     return null;
                 }
 
-                this.effectSoundAudioClipDictionary[effectSoundResourcePath] = audioClip;
+                this.EffectSoundAudioClips[effectSoundResourcePath] = audioClip;
             }
 
             var audioSourceIndex = GetAvailableAudioSourceIndex();
 
-            this.effectSoundAudioSources[audioSourceIndex].clip = this.effectSoundAudioClipDictionary[effectSoundResourcePath];
-            this.effectSoundAudioSources[audioSourceIndex].Play();
-            this.effectSoundAudioSources[audioSourceIndex].volume = effectSoundVolume;
+            this.EffectSoundAudioSources[audioSourceIndex].clip = this.EffectSoundAudioClips[effectSoundResourcePath];
+            this.EffectSoundAudioSources[audioSourceIndex].Play();
+            this.EffectSoundAudioSources[audioSourceIndex].volume = effectSoundVolume;
 
             return audioSourceIndex;
         }
@@ -109,7 +109,7 @@ namespace qbot.Sound
             if (audioSourceIndex == null)
                 return null;
 
-            this.effectSoundAudioSources[audioSourceIndex.Value].loop = true;
+            this.EffectSoundAudioSources[audioSourceIndex.Value].loop = true;
 
             return audioSourceIndex;
         }
@@ -120,14 +120,14 @@ namespace qbot.Sound
         /// <param name="audioSourceIndex">Resource name of the effect sound to stop</param>
         public void Stop(int? audioSourceIndex)
         {
-            if (audioSourceIndex == null || audioSourceIndex < 0 || audioSourceIndex >= this.effectSoundAudioSources.Count)
+            if (audioSourceIndex == null || audioSourceIndex < 0 || audioSourceIndex >= this.EffectSoundAudioSources.Count)
             {
                 Debug.LogError($"audioSourceIndex({audioSourceIndex}) is not in range.");
                 return;
             }
 
-            this.effectSoundAudioSources[audioSourceIndex.Value].loop = false;
-            this.effectSoundAudioSources[audioSourceIndex.Value].Stop();
+            this.EffectSoundAudioSources[audioSourceIndex.Value].loop = false;
+            this.EffectSoundAudioSources[audioSourceIndex.Value].Stop();
         }
 
         /// <summary>
@@ -152,7 +152,7 @@ namespace qbot.Sound
 
             if (enable == false)
             {
-                foreach (var effectSoundAudioSource in this.effectSoundAudioSources)
+                foreach (var effectSoundAudioSource in this.EffectSoundAudioSources)
                 {
                     effectSoundAudioSource.Stop();
                 }
@@ -168,7 +168,7 @@ namespace qbot.Sound
             this.effectSoundVolume = volume;
             PlayerPrefs.SetFloat(EFFECT_SOUND_VOLUME, volume);
 
-            foreach (var effectSoundAudioSource in this.effectSoundAudioSources)
+            foreach (var effectSoundAudioSource in this.EffectSoundAudioSources)
             {
                 effectSoundAudioSource.volume = volume;
             }
@@ -178,9 +178,9 @@ namespace qbot.Sound
         #region Priavte functions
         private int GetAvailableAudioSourceIndex()
         {
-            for (var i = 0; i < this.effectSoundAudioSources.Count; i++)
+            for (var i = 0; i < this.EffectSoundAudioSources.Count; i++)
             {
-                if (this.effectSoundAudioSources[i].isPlaying == false)
+                if (this.EffectSoundAudioSources[i].isPlaying == false)
                     return i;
             }
 
@@ -192,27 +192,27 @@ namespace qbot.Sound
             for (var i = 0; i < DEFAULT_AUDIO_SOURCE_COUNT; i++)
             {
                 var audioSource = this.gameObject.AddComponent<AudioSource>();
-                this.effectSoundAudioSources.Add(audioSource);
+                this.EffectSoundAudioSources.Add(audioSource);
             }
 
-            return this.effectSoundAudioSources.Count - DEFAULT_AUDIO_SOURCE_COUNT;
+            return this.EffectSoundAudioSources.Count - DEFAULT_AUDIO_SOURCE_COUNT;
         }
 
         private void DecreaseAudioPool()
         {
-            if (this.effectSoundAudioSources.Count <= DEFAULT_AUDIO_SOURCE_COUNT)
+            if (this.EffectSoundAudioSources.Count <= DEFAULT_AUDIO_SOURCE_COUNT)
             {
                 Debug.LogError("The number of Effect sound audio sources is less than the default audio source count.");
                 return;
             }
 
-            var count = this.effectSoundAudioSources.Count;
+            var count = this.EffectSoundAudioSources.Count;
 
             for (var i = 0; i < count; i++)
             {
-                if (this.effectSoundAudioSources[i].isPlaying == false)
+                if (this.EffectSoundAudioSources[i].isPlaying == false)
                 {
-                    this.effectSoundAudioSources.RemoveAt(i);
+                    this.EffectSoundAudioSources.RemoveAt(i);
                     i--;
                     count--;
 
@@ -231,7 +231,7 @@ namespace qbot.Sound
             }
 
             var effectSoundResourcePath = GetEffectSoundResourceDirectoryPath(effectSoundResourceName);
-            if (this.effectSoundAudioClipDictionary.ContainsKey(effectSoundResourcePath) == false)
+            if (this.EffectSoundAudioClips.ContainsKey(effectSoundResourcePath) == false)
             {
                 var audioClip = Resources.Load<AudioClip>(effectSoundResourcePath);
                 if (audioClip == null)
@@ -239,10 +239,10 @@ namespace qbot.Sound
                     Debug.LogError($"{effectSoundResourceName} is does not exist.");
                     yield break;
                 }
-                this.effectSoundAudioClipDictionary[effectSoundResourcePath] = audioClip;
+                this.EffectSoundAudioClips[effectSoundResourcePath] = audioClip;
             }
 
-            var waitForSeconds = new WaitForSeconds(this.effectSoundAudioClipDictionary[effectSoundResourcePath].length);
+            var waitForSeconds = new WaitForSeconds(this.EffectSoundAudioClips[effectSoundResourcePath].length);
 
             for (var i = 0; i < times; i++)
             {
@@ -251,9 +251,9 @@ namespace qbot.Sound
             }
         }
 
-        private string GetEffectSoundResourceDirectoryPath(string effectSoundType)
+        private string GetEffectSoundResourceDirectoryPath(string effectSoundName)
         {
-            var soundResourceDirectoryPath = EFFECT_SOUND_RESOURCE_ROOT_PATH + effectSoundType.ToString() + "/";
+            var soundResourceDirectoryPath = EFFECT_SOUND_RESOURCE_ROOT_PATH + effectSoundName.ToString();
 
             return soundResourceDirectoryPath;
         }
