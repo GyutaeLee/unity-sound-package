@@ -48,7 +48,7 @@ namespace qbot.Sound
         #endregion
 
         #region MonoBehaviour functions
-        private void Start()
+        private void Awake()
         {
             this.IsBgmEnabled = PlayerPrefs.GetInt(IS_BGM_ENABLED, 1) == 1;
             this.bgmVolume = PlayerPrefs.GetFloat(BGM_VOLUME, 1.0f);
@@ -166,7 +166,7 @@ namespace qbot.Sound
         #region Private functions
         private string GetBgmResourceDirectoryPath(string bgmResourcename)
         {
-            string bgmResourceDirectoryPath = BGM_RESOURCE_ROOT_PATH + bgmResourcename + "/";
+            string bgmResourceDirectoryPath = BGM_RESOURCE_ROOT_PATH + bgmResourcename;
             return bgmResourceDirectoryPath;
         }
         #endregion
