@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
@@ -22,36 +21,26 @@ namespace qbot.Sound
         {
             get
             {
-                if (this.bgmAudioSource == null)
+                if (bgmAudioSource == null)
                 {
-                    this.bgmAudioSource = this.gameObject.AddComponent<AudioSource>();
-                    this.bgmAudioSource.loop = true;
-                    this.bgmAudioSource.volume = this.bgmVolume;
+                    bgmAudioSource = gameObject.AddComponent<AudioSource>();
+                    bgmAudioSource.loop = true;
+                    bgmAudioSource.volume = bgmVolume;
                 }
 
-                return this.bgmAudioSource;
+                return bgmAudioSource;
             }
         }
 
-        private bool isBgmEnabled;
-        public bool IsBgmEnabled
-        {
-            get
-            {
-                return isBgmEnabled;
-            }
-            private set
-            {
-                isBgmEnabled = value;
-            }
-        }
+        public bool IsBgmEnabled { get; private set; }
+
         #endregion
 
         #region MonoBehaviour functions
         private void Awake()
         {
-            this.IsBgmEnabled = PlayerPrefs.GetInt(IS_BGM_ENABLED, 1) == 1;
-            this.bgmVolume = PlayerPrefs.GetFloat(BGM_VOLUME, 1.0f);
+            IsBgmEnabled = PlayerPrefs.GetInt(IS_BGM_ENABLED, 1) == 1;
+            bgmVolume = PlayerPrefs.GetFloat(BGM_VOLUME, 1.0f);
         }
         #endregion
 
@@ -63,31 +52,31 @@ namespace qbot.Sound
         /// <returns>Results for successful BGM playback</returns>
         public bool Play(string bgmResourceName)
         {
-            if (this.IsBgmEnabled == false)
+            if (IsBgmEnabled == false)
             {
                 Debug.Log("IsBgmEnabled is false.");
                 return true;
             }
 
             var bgmResourcePath = GetBgmResourceDirectoryPath(bgmResourceName);
-            var bgmAudioClip = Resources.Load<AudioClip>(bgmResourcePath);
+            var audioClip = Resources.Load<AudioClip>(bgmResourcePath);
 
-            if (bgmAudioClip == null)
+            if (audioClip == null)
             {
                 Debug.LogError("There is no Bgm audio clip.");
                 return false;
             }
 
-            if (this.BgmAudioSource.clip == bgmAudioClip && this.BgmAudioSource.isPlaying == true)
+            if (BgmAudioSource.clip == audioClip && BgmAudioSource.isPlaying == true)
             {
                 Debug.Log("The same Bgm audio clip is already playing.");
                 return false;
             }
 
-            this.bgmAudioClip = bgmAudioClip;
-            this.BgmAudioSource.clip = this.bgmAudioClip;
-            this.BgmAudioSource.volume = this.bgmVolume;
-            this.BgmAudioSource.Play();
+            bgmAudioClip = audioClip;
+            BgmAudioSource.clip = bgmAudioClip;
+            BgmAudioSource.volume = bgmVolume;
+            BgmAudioSource.Play();
 
             return true;
 
@@ -98,7 +87,7 @@ namespace qbot.Sound
         /// </summary>
         public void Stop()
         {
-            this.BgmAudioSource.Stop();
+            BgmAudioSource.Stop();
         }
 
         /// <summary>
@@ -106,7 +95,7 @@ namespace qbot.Sound
         /// </summary>
         public void Pause()
         {
-            this.BgmAudioSource.Pause();
+            BgmAudioSource.Pause();
         }
 
         /// <summary>
@@ -114,13 +103,13 @@ namespace qbot.Sound
         /// </summary>
         public void Resume()
         {
-            if (this.IsBgmEnabled == false)
+            if (IsBgmEnabled == false)
             {
                 Debug.Log("IsBgmEnabled is false.");
                 return;
             }
 
-            this.BgmAudioSource.Play();
+            BgmAudioSource.Play();
         }
 
         /// <summary>
@@ -130,25 +119,25 @@ namespace qbot.Sound
         /// <param name="playBgmAfterEnable">Whether to play BGM after activation</param>
         public void EnableBgm(bool enable, bool playBgmAfterEnable = false)
         {
-            if (this.IsBgmEnabled == enable)
+            if (IsBgmEnabled == enable)
                 return;
 
-            this.IsBgmEnabled = enable;
+            IsBgmEnabled = enable;
             PlayerPrefs.SetInt(IS_BGM_ENABLED, enable ? 1 : 0);
 
-            if (enable == true)
+            if (enable)
             {
-                this.BgmAudioSource.volume = this.bgmVolume;
+                BgmAudioSource.volume = bgmVolume;
 
                 if (playBgmAfterEnable)
                 {
-                    this.BgmAudioSource.Play();
+                    BgmAudioSource.Play();
                 }
             }
             else
             {
-                this.BgmAudioSource.volume = 0;
-                this.BgmAudioSource.Stop();
+                BgmAudioSource.volume = 0;
+                BgmAudioSource.Stop();
             }
         }
 
@@ -158,15 +147,15 @@ namespace qbot.Sound
         /// <param name="volume">The volume of the bgm to be set</param>
         public void SetVolume(float volume)
         {
-            this.BgmAudioSource.volume = volume;
+            BgmAudioSource.volume = volume;
             PlayerPrefs.SetFloat(BGM_VOLUME, volume);
         }
         #endregion
 
         #region Private functions
-        private string GetBgmResourceDirectoryPath(string bgmResourcename)
+        private string GetBgmResourceDirectoryPath(string bgmResourceName)
         {
-            string bgmResourceDirectoryPath = BGM_RESOURCE_ROOT_PATH + bgmResourcename;
+            var bgmResourceDirectoryPath = BGM_RESOURCE_ROOT_PATH + bgmResourceName;
             return bgmResourceDirectoryPath;
         }
         #endregion
