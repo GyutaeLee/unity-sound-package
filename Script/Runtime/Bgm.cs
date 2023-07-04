@@ -67,7 +67,7 @@ namespace qbot.Sound
                 return false;
             }
 
-            if (BgmAudioSource.clip == audioClip && BgmAudioSource.isPlaying == true)
+            if (BgmAudioSource.clip == audioClip && BgmAudioSource.isPlaying)
             {
                 Debug.Log("The same Bgm audio clip is already playing.");
                 return false;
