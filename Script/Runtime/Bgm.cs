@@ -5,18 +5,42 @@ namespace qbot.Sound
 {
     public class Bgm : MonoBehaviour
     {
-        #region Fields
+#region Fields
+
         private const string BGM_RESOURCE_ROOT_PATH = "Sound/Bgm/";
         private const string IS_BGM_ENABLED = "IS_BGM_ENABLED";
         private const string BGM_VOLUME = "BGM_VOLUME";
 
+        /// <summary>
+        /// Decide whether to use the class as a singleton pattern.
+        /// </summary>
+        [Header("[Singleton]")]
+        [SerializeField]
+        private bool isSingleton;
+
+        /// <summary>
+        /// Deciding whether to make the class a DontDestroyOnLoad GameObject.
+        /// </summary>
+        [SerializeField]
+        private bool isDontDestroyOnLoad;
+
         private float bgmVolume;
 
         private AudioClip bgmAudioClip;
-        #endregion
-
-        #region Properties
         private AudioSource bgmAudioSource;
+
+#endregion
+
+#region Properties
+
+        public static Bgm Instance { get; private set; }
+
+        /// <summary>
+        /// If true, the bgm is played.
+        /// if false, the bgm is not played. 
+        /// </summary>
+        public bool IsBgmEnabled { get; private set; }
+
         private AudioSource BgmAudioSource
         {
             get
@@ -32,19 +56,37 @@ namespace qbot.Sound
             }
         }
 
-        public bool IsBgmEnabled { get; private set; }
+#endregion
 
-        #endregion
+#region MonoBehaviour functions
 
-        #region MonoBehaviour functions
         private void Awake()
         {
+            if (isSingleton)
+            {
+                if (Instance == null)
+                {
+                    if (isDontDestroyOnLoad)
+                    {
+                        DontDestroyOnLoad(gameObject);
+                    }
+
+                    Instance = this;
+                }
+                else
+                {
+                    Destroy(this);
+                }
+            }
+
             IsBgmEnabled = PlayerPrefs.GetInt(IS_BGM_ENABLED, 1) == 1;
             bgmVolume = PlayerPrefs.GetFloat(BGM_VOLUME, 1.0f);
         }
-        #endregion
 
-        #region Public functions
+#endregion
+
+#region Public functions
+
         /// <summary>
         /// Play the bgm.
         /// </summary>
@@ -79,7 +121,6 @@ namespace qbot.Sound
             BgmAudioSource.Play();
 
             return true;
-
         }
 
         /// <summary>
@@ -150,14 +191,17 @@ namespace qbot.Sound
             BgmAudioSource.volume = volume;
             PlayerPrefs.SetFloat(BGM_VOLUME, volume);
         }
-        #endregion
 
-        #region Private functions
+#endregion
+
+#region Private functions
+
         private string GetBgmResourceDirectoryPath(string bgmResourceName)
         {
             var bgmResourceDirectoryPath = BGM_RESOURCE_ROOT_PATH + bgmResourceName;
             return bgmResourceDirectoryPath;
         }
-        #endregion
+
+#endregion
     }
 }

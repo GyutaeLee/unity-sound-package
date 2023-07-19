@@ -6,17 +6,43 @@ namespace qbot.Sound
 {
     public class EffectSound : MonoBehaviour
     {
-        #region Fields
+#region Fields
+
         private const string EFFECT_SOUND_RESOURCE_ROOT_PATH = "Sound/EffectSound/";
         private const string IS_EFFECT_SOUND_ON = "IS_EFFECT_SOUND_ON";
         private const string EFFECT_SOUND_VOLUME = "EFFECT_SOUND_VOLUME";
         private const int DEFAULT_AUDIO_SOURCE_COUNT = 4;
 
-        private float effectSoundVolume;
-        #endregion
+        /// <summary>
+        /// Decide whether to use the class as a singleton pattern.
+        /// </summary>
+        [Header("[Singleton]")]
+        [SerializeField]
+        private bool isSingleton;
 
-        #region Properties
+        /// <summary>
+        /// Deciding whether to make the class a DontDestroyOnLoad GameObject.
+        /// </summary>
+        [SerializeField]
+        private bool isDontDestroyOnLoad;
+
+        private float effectSoundVolume;
+
         private List<AudioSource> effectSoundAudioSources;
+        private Dictionary<string, AudioClip> effectSoundAudioClips;
+
+#endregion
+
+#region Properties
+
+        public static EffectSound Instance { get; private set; }
+
+        /// <summary>
+        /// If true, the effect sound is played.
+        /// if false, the effect sound is not played. 
+        /// </summary>
+        public bool IsEffectSoundEnabled { get; private set; }
+
         private List<AudioSource> EffectSoundAudioSources
         {
             get
@@ -25,8 +51,6 @@ namespace qbot.Sound
                 return effectSoundAudioSources;
             }
         }
-
-        private Dictionary<string, AudioClip> effectSoundAudioClips;
         private Dictionary<string, AudioClip> EffectSoundAudioClips
         {
             get
@@ -36,23 +60,37 @@ namespace qbot.Sound
             }
         }
 
-        /// <summary>
-        /// If true, the effect sound is played.
-        /// if false, the effect sound is not played. 
-        /// </summary>
-        public bool IsEffectSoundEnabled { get; private set; }
+#endregion
 
-        #endregion
+#region Monobehaviour functions
 
-        #region Monobehaviour functions
         private void Awake()
         {
+            if (isSingleton)
+            {
+                if (Instance == null)
+                {
+                    if (isDontDestroyOnLoad)
+                    {
+                        DontDestroyOnLoad(gameObject);
+                    }
+
+                    Instance = this;
+                }
+                else
+                {
+                    Destroy(this);
+                }
+            }
+
             IsEffectSoundEnabled = PlayerPrefs.GetInt(IS_EFFECT_SOUND_ON, 1) == 1;
             effectSoundVolume = PlayerPrefs.GetFloat(EFFECT_SOUND_VOLUME, 1.0f);
         }
-        #endregion
 
-        #region Public functions
+#endregion
+
+#region Public functions
+
         /// <summary>
         /// Play the effect sound.
         /// </summary>
@@ -163,9 +201,11 @@ namespace qbot.Sound
                 effectSoundAudioSource.volume = volume;
             }
         }
-        #endregion
 
-        #region Priavte functions
+#endregion
+
+#region Priavte functions
+
         private int GetAvailableAudioSourceIndex()
         {
             for (var i = 0; i < EffectSoundAudioSources.Count; i++)
@@ -229,6 +269,7 @@ namespace qbot.Sound
                     Debug.LogError($"{effectSoundResourceName} is does not exist.");
                     yield break;
                 }
+
                 EffectSoundAudioClips[effectSoundResourcePath] = audioClip;
             }
 
@@ -247,6 +288,7 @@ namespace qbot.Sound
 
             return soundResourceDirectoryPath;
         }
-        #endregion
+
+#endregion
     }
 }
