@@ -6,34 +6,28 @@ namespace qbot.Sound
 {
     public class EffectSound : MonoBehaviour
     {
-#region Fields
-
-        private const string EFFECT_SOUND_RESOURCE_ROOT_PATH = "Sound/EffectSound/";
-        private const string IS_EFFECT_SOUND_ON = "IS_EFFECT_SOUND_ON";
-        private const string EFFECT_SOUND_VOLUME = "EFFECT_SOUND_VOLUME";
-        private const int DEFAULT_AUDIO_SOURCE_COUNT = 4;
+        private const string EffectSoundResourceRootPath = "Sound/EffectSound/";
+        private const string IsEffectSoundOn = nameof(IsEffectSoundOn);
+        private const string EffectSoundVolume = nameof(EffectSoundVolume);
+        private const int DefaultAudioSourceCount = 4;
 
         /// <summary>
         /// Decide whether to use the class as a singleton pattern.
         /// </summary>
         [Header("[Singleton]")]
         [SerializeField]
-        private bool isSingleton;
+        private bool _isSingleton;
 
         /// <summary>
         /// Deciding whether to make the class a DontDestroyOnLoad GameObject.
         /// </summary>
         [SerializeField]
-        private bool isDontDestroyOnLoad;
+        private bool _isDontDestroyOnLoad;
 
-        private float effectSoundVolume;
+        private float _effectSoundVolume;
 
-        private List<AudioSource> effectSoundAudioSources;
-        private Dictionary<string, AudioClip> effectSoundAudioClips;
-
-#endregion
-
-#region Properties
+        private List<AudioSource> _effectSoundAudioSources;
+        private Dictionary<string, AudioClip> _effectSoundAudioClips;
 
         public static EffectSound Instance { get; private set; }
 
@@ -47,30 +41,26 @@ namespace qbot.Sound
         {
             get
             {
-                effectSoundAudioSources ??= new List<AudioSource>();
-                return effectSoundAudioSources;
+                _effectSoundAudioSources ??= new List<AudioSource>();
+                return _effectSoundAudioSources;
             }
         }
         private Dictionary<string, AudioClip> EffectSoundAudioClips
         {
             get
             {
-                effectSoundAudioClips ??= new Dictionary<string, AudioClip>();
-                return effectSoundAudioClips;
+                _effectSoundAudioClips ??= new Dictionary<string, AudioClip>();
+                return _effectSoundAudioClips;
             }
         }
-
-#endregion
-
-#region Monobehaviour functions
-
+        
         private void Awake()
         {
-            if (isSingleton)
+            if (_isSingleton)
             {
                 if (Instance == null)
                 {
-                    if (isDontDestroyOnLoad)
+                    if (_isDontDestroyOnLoad)
                     {
                         DontDestroyOnLoad(gameObject);
                     }
@@ -83,13 +73,9 @@ namespace qbot.Sound
                 }
             }
 
-            IsEffectSoundEnabled = PlayerPrefs.GetInt(IS_EFFECT_SOUND_ON, 1) == 1;
-            effectSoundVolume = PlayerPrefs.GetFloat(EFFECT_SOUND_VOLUME, 1.0f);
+            IsEffectSoundEnabled = PlayerPrefs.GetInt(IsEffectSoundOn, 1) == 1;
+            _effectSoundVolume = PlayerPrefs.GetFloat(EffectSoundVolume, 1.0f);
         }
-
-#endregion
-
-#region Public functions
 
         /// <summary>
         /// Play the effect sound.
@@ -121,7 +107,7 @@ namespace qbot.Sound
 
             EffectSoundAudioSources[audioSourceIndex].clip = EffectSoundAudioClips[effectSoundResourcePath];
             EffectSoundAudioSources[audioSourceIndex].Play();
-            EffectSoundAudioSources[audioSourceIndex].volume = effectSoundVolume;
+            EffectSoundAudioSources[audioSourceIndex].volume = _effectSoundVolume;
 
             return audioSourceIndex;
         }
@@ -176,7 +162,7 @@ namespace qbot.Sound
         public void EnableEffectSound(bool enable)
         {
             IsEffectSoundEnabled = enable;
-            PlayerPrefs.SetInt(IS_EFFECT_SOUND_ON, enable ? 1 : 0);
+            PlayerPrefs.SetInt(IsEffectSoundOn, enable ? 1 : 0);
 
             if (enable == false)
             {
@@ -193,18 +179,14 @@ namespace qbot.Sound
         /// <param name="volume">The volume of the effect sound to be set</param>
         public void SetVolume(float volume)
         {
-            effectSoundVolume = volume;
-            PlayerPrefs.SetFloat(EFFECT_SOUND_VOLUME, volume);
+            _effectSoundVolume = volume;
+            PlayerPrefs.SetFloat(EffectSoundVolume, volume);
 
             foreach (var effectSoundAudioSource in EffectSoundAudioSources)
             {
                 effectSoundAudioSource.volume = volume;
             }
         }
-
-#endregion
-
-#region Priavte functions
 
         private int GetAvailableAudioSourceIndex()
         {
@@ -219,18 +201,18 @@ namespace qbot.Sound
 
         private int IncreaseAudioPool()
         {
-            for (var i = 0; i < DEFAULT_AUDIO_SOURCE_COUNT; i++)
+            for (var i = 0; i < DefaultAudioSourceCount; i++)
             {
                 var audioSource = gameObject.AddComponent<AudioSource>();
                 EffectSoundAudioSources.Add(audioSource);
             }
 
-            return EffectSoundAudioSources.Count - DEFAULT_AUDIO_SOURCE_COUNT;
+            return EffectSoundAudioSources.Count - DefaultAudioSourceCount;
         }
 
         private void DecreaseAudioPool()
         {
-            if (EffectSoundAudioSources.Count <= DEFAULT_AUDIO_SOURCE_COUNT)
+            if (EffectSoundAudioSources.Count <= DefaultAudioSourceCount)
             {
                 Debug.LogError("The number of Effect sound audio sources is less than the default audio source count.");
                 return;
@@ -246,7 +228,7 @@ namespace qbot.Sound
                     i--;
                     count--;
 
-                    if (count <= DEFAULT_AUDIO_SOURCE_COUNT)
+                    if (count <= DefaultAudioSourceCount)
                         break;
                 }
             }
@@ -284,11 +266,9 @@ namespace qbot.Sound
 
         private string GetEffectSoundResourceDirectoryPath(string effectSoundName)
         {
-            var soundResourceDirectoryPath = EFFECT_SOUND_RESOURCE_ROOT_PATH + effectSoundName;
+            var soundResourceDirectoryPath = EffectSoundResourceRootPath + effectSoundName;
 
             return soundResourceDirectoryPath;
         }
-
-#endregion
     }
 }
