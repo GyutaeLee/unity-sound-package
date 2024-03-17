@@ -5,33 +5,27 @@ namespace qbot.Sound
 {
     public class Bgm : MonoBehaviour
     {
-#region Fields
-
-        private const string BGM_RESOURCE_ROOT_PATH = "Sound/Bgm/";
-        private const string IS_BGM_ENABLED = "IS_BGM_ENABLED";
-        private const string BGM_VOLUME = "BGM_VOLUME";
+        private const string BGMResourceRootPath = "Sound/Bgm/";
+        private const string IsBGMEnabled = nameof(IsBGMEnabled);
+        private const string BGMVolume = nameof(BGMVolume);
 
         /// <summary>
         /// Decide whether to use the class as a singleton pattern.
         /// </summary>
         [Header("[Singleton]")]
         [SerializeField]
-        private bool isSingleton;
+        private bool _isSingleton;
 
         /// <summary>
         /// Deciding whether to make the class a DontDestroyOnLoad GameObject.
         /// </summary>
         [SerializeField]
-        private bool isDontDestroyOnLoad;
+        private bool _isDontDestroyOnLoad;
 
-        private float bgmVolume;
+        private float _bgmVolume;
 
-        private AudioClip bgmAudioClip;
-        private AudioSource bgmAudioSource;
-
-#endregion
-
-#region Properties
+        private AudioClip _bgmAudioClip;
+        private AudioSource _bgmAudioSource;
 
         public static Bgm Instance { get; private set; }
 
@@ -45,28 +39,24 @@ namespace qbot.Sound
         {
             get
             {
-                if (bgmAudioSource == null)
+                if (_bgmAudioSource == null)
                 {
-                    bgmAudioSource = gameObject.AddComponent<AudioSource>();
-                    bgmAudioSource.loop = true;
-                    bgmAudioSource.volume = bgmVolume;
+                    _bgmAudioSource = gameObject.AddComponent<AudioSource>();
+                    _bgmAudioSource.loop = true;
+                    _bgmAudioSource.volume = _bgmVolume;
                 }
 
-                return bgmAudioSource;
+                return _bgmAudioSource;
             }
         }
 
-#endregion
-
-#region MonoBehaviour functions
-
         private void Awake()
         {
-            if (isSingleton)
+            if (_isSingleton)
             {
                 if (Instance == null)
                 {
-                    if (isDontDestroyOnLoad)
+                    if (_isDontDestroyOnLoad)
                     {
                         DontDestroyOnLoad(gameObject);
                     }
@@ -79,13 +69,9 @@ namespace qbot.Sound
                 }
             }
 
-            IsBgmEnabled = PlayerPrefs.GetInt(IS_BGM_ENABLED, 1) == 1;
-            bgmVolume = PlayerPrefs.GetFloat(BGM_VOLUME, 1.0f);
+            IsBgmEnabled = PlayerPrefs.GetInt(IsBGMEnabled, 1) == 1;
+            _bgmVolume = PlayerPrefs.GetFloat(BGMVolume, 1.0f);
         }
-
-#endregion
-
-#region Public functions
 
         /// <summary>
         /// Play the bgm.
@@ -115,9 +101,9 @@ namespace qbot.Sound
                 return false;
             }
 
-            bgmAudioClip = audioClip;
-            BgmAudioSource.clip = bgmAudioClip;
-            BgmAudioSource.volume = bgmVolume;
+            _bgmAudioClip = audioClip;
+            BgmAudioSource.clip = _bgmAudioClip;
+            BgmAudioSource.volume = _bgmVolume;
             BgmAudioSource.Play();
 
             return true;
@@ -164,11 +150,11 @@ namespace qbot.Sound
                 return;
 
             IsBgmEnabled = enable;
-            PlayerPrefs.SetInt(IS_BGM_ENABLED, enable ? 1 : 0);
+            PlayerPrefs.SetInt(IsBGMEnabled, enable ? 1 : 0);
 
             if (enable)
             {
-                BgmAudioSource.volume = bgmVolume;
+                BgmAudioSource.volume = _bgmVolume;
 
                 if (playBgmAfterEnable)
                 {
@@ -189,19 +175,13 @@ namespace qbot.Sound
         public void SetVolume(float volume)
         {
             BgmAudioSource.volume = volume;
-            PlayerPrefs.SetFloat(BGM_VOLUME, volume);
+            PlayerPrefs.SetFloat(BGMVolume, volume);
         }
-
-#endregion
-
-#region Private functions
 
         private string GetBgmResourceDirectoryPath(string bgmResourceName)
         {
-            var bgmResourceDirectoryPath = BGM_RESOURCE_ROOT_PATH + bgmResourceName;
+            var bgmResourceDirectoryPath = BGMResourceRootPath + bgmResourceName;
             return bgmResourceDirectoryPath;
         }
-
-#endregion
     }
 }
