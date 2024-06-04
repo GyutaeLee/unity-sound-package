@@ -143,6 +143,17 @@ namespace qbot.Sound
             EffectSoundAudioSources[audioSourceIndex.Value].loop = false;
             EffectSoundAudioSources[audioSourceIndex.Value].Stop();
         }
+        
+        /// <summary>
+        /// Stop all effect sound.
+        /// </summary>
+        public void StopAll()
+        {
+            foreach (var audioSource in EffectSoundAudioSources)
+            {
+                audioSource.Stop();
+            }
+        }
 
         /// <summary>
         /// Play the effect sound several times.
