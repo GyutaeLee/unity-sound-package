@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace qbot.Sound
 {
@@ -27,6 +29,7 @@ namespace qbot.Sound
         private float _effectSoundVolume;
 
         private List<AudioSource> _effectSoundAudioSources;
+        private List<AudioSource> _pausedEffectSoundAudioSources;
         private Dictionary<string, AudioClip> _effectSoundAudioClips;
 
         public static EffectSound Instance { get; private set; }
@@ -45,6 +48,16 @@ namespace qbot.Sound
                 return _effectSoundAudioSources;
             }
         }
+
+        private List<AudioSource> PausedEffectSoundAudioSources
+        {
+            get
+            {
+                _pausedEffectSoundAudioSources ??= new List<AudioSource>();
+                return _pausedEffectSoundAudioSources;
+            }
+        }
+        
         private Dictionary<string, AudioClip> EffectSoundAudioClips
         {
             get
@@ -75,6 +88,14 @@ namespace qbot.Sound
 
             IsEffectSoundEnabled = PlayerPrefs.GetInt(IsEffectSoundOn, 1) == 1;
             _effectSoundVolume = PlayerPrefs.GetFloat(EffectSoundVolume, 1.0f);
+        }
+
+        /// <summary>
+        /// Clear all audio
+        /// </summary>
+        public void ClearAllAudioSources()
+        {
+            _effectSoundAudioSources = null;
         }
 
         /// <summary>
@@ -129,6 +150,62 @@ namespace qbot.Sound
         }
 
         /// <summary>
+        /// Pause the effect sound.
+        /// </summary>
+        /// <param name="audioSourceIndex">Resource name of the effect sound to stop</param>
+        public void Pause(int? audioSourceIndex)
+        {
+            if (audioSourceIndex == null || audioSourceIndex < 0 || audioSourceIndex >= EffectSoundAudioSources.Count)
+            {
+                Debug.LogError($"audioSourceIndex({audioSourceIndex}) is not in range.");
+                return;
+            }
+            
+            EffectSoundAudioSources[audioSourceIndex.Value].Pause();
+            PausedEffectSoundAudioSources.Add(EffectSoundAudioSources[audioSourceIndex.Value]);
+        }
+        
+        /// <summary>
+        /// Pause all effect sound.
+        /// </summary>
+        public void PauseAll()
+        {
+            foreach (var audioSource in EffectSoundAudioSources.Where(audioSource => audioSource.isPlaying))
+            {
+                audioSource.Pause();
+                PausedEffectSoundAudioSources.Add(audioSource);
+            }
+        }
+
+        /// <summary>
+        /// Resume the effect sound.
+        /// </summary>
+        public void Resume(int? audioSourceIndex)
+        {
+            if (audioSourceIndex == null || audioSourceIndex < 0 || audioSourceIndex >= EffectSoundAudioSources.Count)
+            {
+                Debug.LogError($"audioSourceIndex({audioSourceIndex}) is not in range.");
+                return;
+            }
+            
+            EffectSoundAudioSources[audioSourceIndex.Value].Play();
+            PausedEffectSoundAudioSources.Remove(EffectSoundAudioSources[audioSourceIndex.Value]);
+        }
+
+        /// <summary>
+        /// Resume all effect sound.
+        /// </summary>
+        public void ResumeAll()
+        {
+            foreach (var pausedAudioSource in PausedEffectSoundAudioSources)
+            {
+                pausedAudioSource.Play();
+            }
+
+            _pausedEffectSoundAudioSources = null;
+        }
+        
+        /// <summary>
         /// Stop the effect sound.
         /// </summary>
         /// <param name="audioSourceIndex">Resource name of the effect sound to stop</param>
@@ -142,8 +219,9 @@ namespace qbot.Sound
 
             EffectSoundAudioSources[audioSourceIndex.Value].loop = false;
             EffectSoundAudioSources[audioSourceIndex.Value].Stop();
+            EffectSoundAudioSources[audioSourceIndex.Value].clip = null;
         }
-        
+
         /// <summary>
         /// Stop all effect sound.
         /// </summary>
@@ -152,6 +230,7 @@ namespace qbot.Sound
             foreach (var audioSource in EffectSoundAudioSources)
             {
                 audioSource.Stop();
+                audioSource.clip = null;
             }
         }
 

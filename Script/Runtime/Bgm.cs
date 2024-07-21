@@ -115,6 +115,8 @@ namespace qbot.Sound
         public void Stop()
         {
             BgmAudioSource.Stop();
+            BgmAudioSource.clip = null;
+            _bgmAudioClip = null;
         }
 
         /// <summary>
