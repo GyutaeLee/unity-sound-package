@@ -39,13 +39,12 @@ namespace qbot.Sound
         {
             get
             {
-                if (_bgmAudioSource == null)
-                {
-                    _bgmAudioSource = gameObject.AddComponent<AudioSource>();
-                    _bgmAudioSource.loop = true;
-                    _bgmAudioSource.volume = _bgmVolume;
-                }
-
+                if (_bgmAudioSource != null || gameObject == null)
+                    return _bgmAudioSource;
+                
+                _bgmAudioSource = gameObject.AddComponent<AudioSource>();
+                _bgmAudioSource.loop = true;
+                _bgmAudioSource.volume = _bgmVolume;
                 return _bgmAudioSource;
             }
         }
