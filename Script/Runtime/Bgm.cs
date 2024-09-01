@@ -165,7 +165,7 @@ namespace qbot.Sound
             else
             {
                 BgmAudioSource.volume = 0;
-                BgmAudioSource.Stop();
+                BgmAudioSource.Pause();
             }
         }
 
