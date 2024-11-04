@@ -106,10 +106,7 @@ namespace qbot.Sound
         public int? Play(string effectSoundResourceName)
         {
             if (IsEffectSoundEnabled == false)
-            {
-                Debug.Log("IsEffectSoundEnabled is false");
                 return null;
-            }
 
             var effectSoundResourcePath = GetEffectSoundResourceDirectoryPath(effectSoundResourceName);
             if (EffectSoundAudioClips.ContainsKey(effectSoundResourcePath) == false)
