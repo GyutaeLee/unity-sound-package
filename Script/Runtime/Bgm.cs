@@ -6,8 +6,8 @@ namespace qbot.Sound
     public class Bgm : MonoBehaviour
     {
         private const string BGMResourceRootPath = "Sound/Bgm/";
-        private const string IsBGMEnabled = nameof(IsBGMEnabled);
-        private const string BGMVolume = nameof(BGMVolume);
+        private const string IsBgEnabledKey = nameof(IsBgEnabledKey);
+        private const string BgmVolumeKey = nameof(BgmVolumeKey);
 
         /// <summary>
         /// Decide whether to use the class as a singleton pattern.
@@ -35,13 +35,15 @@ namespace qbot.Sound
         /// </summary>
         public bool IsBgmEnabled { get; private set; }
 
+        public bool IsPlaying => BgmAudioSource.isPlaying;
+
         private AudioSource BgmAudioSource
         {
             get
             {
                 if (_bgmAudioSource != null)
                     return _bgmAudioSource;
-                
+
                 _bgmAudioSource = gameObject.AddComponent<AudioSource>();
                 _bgmAudioSource.loop = true;
                 _bgmAudioSource.volume = _bgmVolume;
@@ -68,8 +70,8 @@ namespace qbot.Sound
                 }
             }
 
-            IsBgmEnabled = PlayerPrefs.GetInt(IsBGMEnabled, 1) == 1;
-            _bgmVolume = PlayerPrefs.GetFloat(BGMVolume, 1.0f);
+            IsBgmEnabled = PlayerPrefs.GetInt(IsBgEnabledKey, 1) == 1;
+            _bgmVolume = PlayerPrefs.GetFloat(BgmVolumeKey, 1.0f);
         }
 
         /// <summary>
@@ -151,7 +153,7 @@ namespace qbot.Sound
                 return;
 
             IsBgmEnabled = enable;
-            PlayerPrefs.SetInt(IsBGMEnabled, enable ? 1 : 0);
+            PlayerPrefs.SetInt(IsBgEnabledKey, enable ? 1 : 0);
 
             if (enable)
             {
@@ -176,7 +178,7 @@ namespace qbot.Sound
         public void SetVolume(float volume)
         {
             BgmAudioSource.volume = volume;
-            PlayerPrefs.SetFloat(BGMVolume, volume);
+            PlayerPrefs.SetFloat(BgmVolumeKey, volume);
         }
 
         private string GetBgmResourceDirectoryPath(string bgmResourceName)
