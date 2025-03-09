@@ -94,12 +94,12 @@ namespace qbot.Sound
         /// </summary>
         public void ClearAllAudioSources()
         {
-            foreach (var audioSource in _effectSoundAudioSources)
+            foreach (var audioSource in EffectSoundAudioSources)
             {
                 Destroy(audioSource);
             }
             
-            _effectSoundAudioSources.Clear();
+            EffectSoundAudioSources.Clear();
         }
 
         /// <summary>
