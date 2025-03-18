@@ -198,7 +198,7 @@ namespace qbot.Sound
         /// </summary>
         public void ResumeAll()
         {
-            foreach (var pausedAudioSource in PausedEffectSoundAudioSources)
+            foreach (var pausedAudioSource in PausedEffectSoundAudioSources.Where(pausedAudioSource => pausedAudioSource != null))
             {
                 pausedAudioSource.Play();
             }
