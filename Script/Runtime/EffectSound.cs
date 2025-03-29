@@ -126,10 +126,13 @@ namespace qbot.Sound
             }
 
             var audioSourceIndex = GetAvailableAudioSourceIndex();
+            if (audioSourceIndex == null)
+                return null;
 
-            EffectSoundAudioSources[audioSourceIndex].clip = EffectSoundAudioClips[effectSoundResourcePath];
-            EffectSoundAudioSources[audioSourceIndex].Play();
-            EffectSoundAudioSources[audioSourceIndex].volume = _effectSoundVolume;
+            var realIndex = (int)audioSourceIndex;
+            EffectSoundAudioSources[realIndex].clip = EffectSoundAudioClips[effectSoundResourcePath];
+            EffectSoundAudioSources[realIndex].Play();
+            EffectSoundAudioSources[realIndex].volume = _effectSoundVolume;
 
             return audioSourceIndex;
         }
@@ -279,7 +282,7 @@ namespace qbot.Sound
             }
         }
 
-        private int GetAvailableAudioSourceIndex()
+        private int? GetAvailableAudioSourceIndex()
         {
             for (var i = 0; i < EffectSoundAudioSources.Count; i++)
             {
@@ -290,8 +293,11 @@ namespace qbot.Sound
             return IncreaseAudioPool();
         }
 
-        private int IncreaseAudioPool()
+        private int? IncreaseAudioPool()
         {
+            if (gameObject == null)
+                return null;
+            
             for (var i = 0; i < DefaultAudioSourceCount; i++)
             {
                 var audioSource = gameObject.AddComponent<AudioSource>();
