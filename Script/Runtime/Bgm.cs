@@ -24,9 +24,6 @@ namespace qbot.Sound
 
         private float _bgmVolume;
 
-        private AudioClip _bgmAudioClip;
-        private AudioSource _bgmAudioSource;
-
         public static Bgm Instance { get; private set; }
 
         /// <summary>
@@ -37,6 +34,7 @@ namespace qbot.Sound
 
         public bool IsPlaying => BgmAudioSource.isPlaying;
 
+        private AudioSource _bgmAudioSource;
         private AudioSource BgmAudioSource
         {
             get
@@ -82,31 +80,32 @@ namespace qbot.Sound
         public bool Play(string bgmResourceName)
         {
             if (IsBgmEnabled == false)
-            {
-                Debug.Log("IsBgmEnabled is false.");
                 return true;
-            }
 
             var bgmResourcePath = GetBgmResourceDirectoryPath(bgmResourceName);
             var audioClip = Resources.Load<AudioClip>(bgmResourcePath);
-
             if (audioClip == null)
-            {
-                Debug.LogError("There is no Bgm audio clip.");
                 return false;
-            }
 
             if (BgmAudioSource.clip == audioClip && BgmAudioSource.isPlaying)
-            {
-                Debug.Log("The same Bgm audio clip is already playing.");
                 return false;
-            }
-
-            _bgmAudioClip = audioClip;
-            BgmAudioSource.clip = _bgmAudioClip;
+            
+            BgmAudioSource.clip = audioClip;
             BgmAudioSource.volume = _bgmVolume;
             BgmAudioSource.Play();
 
+            return true;
+        }
+
+        public bool Play()
+        {
+            if (IsBgmEnabled == false)
+                return false;
+            
+            if (BgmAudioSource.clip == null)
+                return false;
+            
+            BgmAudioSource.Play();
             return true;
         }
 
@@ -117,7 +116,6 @@ namespace qbot.Sound
         {
             BgmAudioSource.Stop();
             BgmAudioSource.clip = null;
-            _bgmAudioClip = null;
         }
 
         /// <summary>
