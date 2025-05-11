@@ -1,5 +1,4 @@
 using UnityEngine;
-using Debug = UnityEngine.Debug;
 
 namespace qbot.Sound
 {
@@ -132,10 +131,7 @@ namespace qbot.Sound
         public void Resume()
         {
             if (IsBgmEnabled == false)
-            {
-                Debug.Log("IsBgmEnabled is false.");
                 return;
-            }
 
             BgmAudioSource.Play();
         }
