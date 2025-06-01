@@ -1,4 +1,4 @@
-# Unity-Sound-Packages
+# unity-sound-package
 
 ### Summary
 
